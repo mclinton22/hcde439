@@ -4,15 +4,92 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, maximum-scale=1.0" />
 
-    <title>Example Student's HCDE 439 Physical Computing Page!</title>
+    <title>Madeline Clinton's HCDE 439 Physical Computing Page!</title>
 
     <link href="style.css" rel="stylesheet" type="text/css" />
   </head>
   <body>
-    <h1>Example Student's Assignment 1!</h1>
+    <h1>Madeline Clinton's Assignment 1: Blink!</h1>
     <div class="header">
-      <img src="red-panda.jpg" />
-      <p>Here is all the documentation for assignment 1!</p>
+      <h2>Here is all the documentation for assignment 1!</h2>
+    </div>
+
+    <div class="assignment">
+      <img src="circuit photo.jpeg" alt="Photo of a breadboard with three red LEDs connected to an arduino board."/>
+      <p>This photo shows the circuit. There are three LEDs, three resistors, a breadboard, and an arduino board.</p>
+
+      <img src="circuit vid.gif" alt="A gif showing three LEDs blinking one at a time in a loop."/>
+      <p>This is the (unfortunatly low quality) video of the LEDs blinking one at a time.</p>
+
+      <img src="resistor and schematic.jpg" alt="Calculations for resistors and a schematic of three LEDS in paralell with resistors."/>
+      <p>This photo shows how I calculated the resistor values for the circuit and the schematic I drew to represent the circuit</p>
+
+      <h2> Arduino Code</h2>
+      <pre>
+        int pin1 = 13; // blue wire
+        int pin2 = 12; // white wire
+        int pin3 = 11;// orange wire
+
+        // the setup function runs once when you press reset or power the board
+        void setup() {
+          // initializes the 3 pins as an output.
+          pinMode(pin1, OUTPUT);
+          pinMode(pin2, OUTPUT);
+          pinMode(pin3, OUTPUT);
+        }
+
+        // the loop function runs over and over again forever
+        void loop() {
+          // turns pin1 on, keeps the other 2 off
+          digitalWrite(pin1, HIGH);
+          digitalWrite(pin2, LOW); // turns pin2 off
+          digitalWrite(pin3, LOW); // turns pin3 off
+          // adds a 1 second delay
+          delay(1000);
+          // turns pin2 on, keeps the other 2 off
+          digitalWrite(pin2, HIGH);
+          digitalWrite(pin1, LOW); // turns pin1 off
+          digitalWrite(pin3, LOW); // turns pin3 off
+          // adds a 1 second delay
+          delay(1000);
+          // turns pin3 on, keeps other 2 off
+          digitalWrite(pin3, HIGH);
+          digitalWrite(pin1, LOW); // turns pin1 off
+          digitalWrite(pin2, LOW); // turns pin2 off
+          delay(1000);
+        }
+      </pre>
+
+      <h2> Additional Questions</h2>
+      <ol>
+        <li>
+          <h3>
+            Draw a graph where the X axis is time and the Y axis is voltage across the LEDs. Draw a line for each of your 3 LEDs.
+          </h3>
+          <img src="graph.jpg" alt="A drawing of the voltage of each LED, one second at a time."/>
+        </li>
+
+        <li>
+          <h3>How many LEDs could you blink independently with your Arduino? How much current would that draw?</h3>
+          <p>
+            With my Arduino board, I can blink up to 14 LEDS independently, 0-13. The current would draw 20mA (assuming all are red LEDs), making a total of 280mA. Assuming each LED lit up separately, the current would be 20mA.
+          </p>
+        </li>
+
+        <li>
+          <h3>How fast do you need to blink your LEDs until you no longer can tell that they are blinking?</h3>
+          <p>
+            Changing the delay down to 10 milliseconds makes the LEDs blink so fast that it looks like they are not blinking at all.
+          </p>
+        </li>
+
+        <li>
+          <h3>
+            Did you use AI tools in completing this assignment? If yes, please provide details on how/when, as well as a brief reflection. If no, you can either leave this question blank, or provide other information if you'd like.
+          </h3>
+          <p>I looked up how to make a code snippet in HTML but I did not use any AI in this project.</p>
+        </li>
+      </ol>
     </div>
   </body>
 </html>
