@@ -11,53 +11,82 @@
   <body>
     <h1>Madeline Clinton's Assignment 2!</h1>
     <div class="header">
-      <img src="red-panda.jpg" />
+      <img src="circuit 2.jpeg" />
       <p>Here is all the documentation for assignment 2!</p>
     </div>
 
     <div class="assignment">
-      <img src="circuit photo.jpeg" alt="Photo of a breadboard with three red LEDs connected to an arduino board."/>
-      <p>This photo shows the circuit. There are three LEDs, three resistors, a breadboard, and an arduino board.</p>
+      <img src="circuit 2.jpeg" alt="Photo of a breadboard with three LEDs connected to an arduino board."/>
+      <p>This photo shows the circuit. There are three LEDs, four resistors, a button, a breadboard, and an arduino board.</p>
 
-      <img src="circuit vid.gif" alt="A gif showing three LEDs blinking one at a time in a loop."/>
-      <p>This is the (unfortunatly low quality) video of the LEDs blinking one at a time.</p>
+      <img src="Adobe Express - fade vid.gif" alt="A gif showing three LEDs fading high to low at the same time."/>
+      <p>This is the video of the LEDs fading high to low at the same time.</p>
 
-      <img src="resistor and schematic.jpg" alt="Calculations for resistors and a schematic of three LEDS in paralell with resistors."/>
+      <img src="schematic and calculations 2.jpg" alt="Calculations for resistors and a schematic of three LEDS in paralell with resistors plus a button."/>
       <p>This photo shows how I calculated the resistor values for the circuit and the schematic I drew to represent the circuit</p>
 
       <h2> Arduino Code</h2>
       <pre>
-        int pin1 = 13; // blue wire
-        int pin2 = 12; // white wire
-        int pin3 = 11;// orange wire
+        const int led = 9;     // pin led is attached to
+        const int led2 = 10;  // pin led2 is attached to
+        const int led3 = 11;  // pin led3 is attached to
+        const int buttonPin = 2; // pin button is attached to
 
-        // the setup function runs once when you press reset or power the board
+        int brightness = 0;  // how bright the LED is
+        int fadeAmount = 5;  // how many points to fade the LED by
+        bool fade = false; // if the leds are fading or not
+        int buttonState = 0; // button status - starts off/unpressed
+        int lastButtonState = buttonState; // makes the
+
+        // sets the leds at outputs and button as an input
         void setup() {
-          // initializes the 3 pins as an output.
-          pinMode(pin1, OUTPUT);
-          pinMode(pin2, OUTPUT);
-          pinMode(pin3, OUTPUT);
+          pinMode(led, OUTPUT);
+          pinMode(led2, OUTPUT);
+          pinMode(led3, OUTPUT);
+
+          pinMode(buttonPin, INPUT);
         }
 
-        // the loop function runs over and over again forever
+        // the loop routine runs over and over again forever:
         void loop() {
-          // turns pin1 on, keeps the other 2 off
-          digitalWrite(pin1, HIGH);
-          digitalWrite(pin2, LOW); // turns pin2 off
-          digitalWrite(pin3, LOW); // turns pin3 off
-          // adds a 1 second delay
-          delay(1000);
-          // turns pin2 on, keeps the other 2 off
-          digitalWrite(pin2, HIGH);
-          digitalWrite(pin1, LOW); // turns pin1 off
-          digitalWrite(pin3, LOW); // turns pin3 off
-          // adds a 1 second delay
-          delay(1000);
-          // turns pin3 on, keeps other 2 off
-          digitalWrite(pin3, HIGH);
-          digitalWrite(pin1, LOW); // turns pin1 off
-          digitalWrite(pin2, LOW); // turns pin2 off
-          delay(1000);
+            // makes the button state the actual state of the button
+            buttonState = digitalRead(buttonPin);
+
+          // if the button state is changing...
+          if (buttonState == LOW && lastButtonState == HIGH) {
+            // change fade to the opposite
+            fade = !fade;
+
+            // if not fading, turn leds off
+            if (!fade) {
+              digitalWrite(led, LOW);
+              digitalWrite(led2, LOW);
+              digitalWrite(led3, LOW);
+            }
+          }
+
+          // update the last button state
+          lastButtonState = buttonState;
+          
+          // if the leds are fading (boolean is true)
+          if (fade) {
+            for (int i = 0; i < 1; i++) {
+              // change led brightness to current brightness
+              analogWrite(led, brightness);
+              analogWrite(led2, brightness);
+              analogWrite(led3, brightness);
+
+              // change the brightness for next time through the loop
+              brightness += fadeAmount;
+
+              // reverse the direction of the fading at the ends of the fade
+              if (brightness <= 0 || brightness >= 255) {
+                fadeAmount = -fadeAmount;
+              }
+              // wait for 30 milliseconds to see the dimming effect
+              delay(30);
+            }
+          }    
         }
       </pre>
 
@@ -67,7 +96,7 @@
           <h3>
             Draw a chart where the X axis is time and the Y axis is voltage. Draw 3 lines representing the voltage across an LED with analogWrite(led, 64), analogWrite(led, 128), and analogWrite(led, 255).
           </h3>
-          <img src="graph.jpg" alt="A drawing of the voltage of each LED, one second at a time."/>
+          <img src="graph 2.jpg" alt="A drawing of an LED with 3 different analogWrite values."/>
         </li>
 
         <li>
@@ -75,7 +104,7 @@
             If all your LEDs were on simultaneously, what would the total current draw be? Is this above or below the total Arduino current draw limits? If all your LEDs were on, how long would your circuit run if powered by a 1200 mAh battery?
           </h3>
           <p>
-            With my Arduino board, I can blink up to 14 LEDS independently, 0-13. The current would draw 20mA (assuming all are red LEDs), making a total of 280mA. Assuming each LED lit up separately, the current would be 20mA.
+            The total current draw would be 60mA if all three LEDs were on simultaneously (20mA each). This is below the Arduino's recommended maximum current draw of 200mA. If powered by a 1200 mAh battery, the circuit would run for about 20 hours (1200 mAh / 60 mA = 20 hours).
           </p>
         </li>
 
@@ -84,7 +113,7 @@
             Measure and record the actual voltage across one of your LEDs when it's on. How does this compare to the theoretical forward voltage for your LED color?
           </h3>
           <p>
-            Changing the delay down to 10 milliseconds makes the LEDs blink so fast that it looks like they are not blinking at all.
+            The actual voltage for my red LED when it's on is 1.82V. This is within the theoretical forward voltage for red LEDs, which ranges from 1.8V to 2.2V.
           </p>
         </li>
 
@@ -92,7 +121,9 @@
           <h3>
             Did you use AI tools in completing this assignment? If yes, please provide details on how/when, as well as a brief reflection. If no, you can either leave this question blank, or provide other information if you'd like.
           </h3>
-          <p>I looked up how to make a code snippet in HTML but I did not use any AI in this project.</p>
+          <p>
+            I used ChatGPT to check my code - which did not prove helpful. This is because I had the GND connected to the wrong pin the whole time, which is why my code wasn't working.
+          </p>
         </li>
       </ol>
     </div>
