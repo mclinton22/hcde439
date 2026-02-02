@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, maximum-scale=1.0" />
+
+    <title>Madeline Clinton's HCDE 439 Physical Computing Page!</title>
+
+    <link href="style.css" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+    <h1>Madeline Clinton's Assignment 3!</h1>
+    <div class="header">
+      <img src="circuit 2.jpeg" />
+      <p>Here is all the documentation for assignment 3!</p>
+    </div>
+
+    <div class="assignment">
+      <img src="circuit 2.jpeg" alt="Photo of a breadboard with three LEDs connected to an arduino board."/>
+      <p>This photo shows the circuit. There are three LEDs, four resistors, a button, a breadboard, and an arduino board.</p>
+
+      <img src="Adobe Express - fade vid.gif" alt="A gif showing three LEDs fading high to low at the same time."/>
+      <p>This is the video of the LEDs fading high to low at the same time.</p>
+
+      <img src="schematic and calculations 2.jpg" alt="Calculations for resistors and a schematic of three LEDS in paralell with resistors plus a button."/>
+      <p>This photo shows how I calculated the resistor values for the circuit and the schematic I drew to represent the circuit</p>
+
+      <h2> Arduino Code</h2>
+      <pre>
+        
+      </pre>
+
+      <h2> Additional Questions</h2>
+      <ol>
+        <li>
+          <h3>
+            In your voltage divider, can the variable resistor be either R1 or R2 or does it need to be one or the other? Justify your answer with example calculations.
+          </h3>
+          <img src="graph 2.jpg" alt="A drawing of an LED with 3 different analogWrite values."/>
+        </li>
+
+        <li>
+          <h3>
+            Draw a graph where the x-axis is time and the y-axis is voltage. Plot the voltage at V-measure (where your pin is reading the voltage) of your voltage divider of your shared gif/video.
+          </h3>
+          <p>
+            The total current draw would be 60mA if all three LEDs were on simultaneously (20mA each). This is below the Arduino's recommended maximum current draw of 200mA. If powered by a 1200 mAh battery, the circuit would run for about 20 hours (1200 mAh / 60 mA = 20 hours).
+          </p>
+        </li>
+
+        <li>
+          <h3>
+            AnalogWrite and analogRead are respectively 8-bit and 10-bit values. Imagine you had 10-bit PWM and a 16-bit analog-to-digital converter instead. How would this change your map() code? Explain your answer.
+          </h3>
+          <p>
+            The actual voltage for my red LED when it's on is 1.82V. This is within the theoretical forward voltage for red LEDs, which ranges from 1.8V to 2.2V.
+          </p>
+        </li>
+
+        <li>
+          <h3>
+            Did you use AI tools in completing this assignment? If yes, please provide details on how/when, as well as a brief reflection. If no, you can either leave this question blank, or provide other information if you'd like.
+          </h3>
+          <p>
+            I used ChatGPT to check my code - which did not prove helpful. This is because I had the GND connected to the wrong pin the whole time, which is why my code wasn't working.
+          </p>
+        </li>
+      </ol>
+    </div>
+  </body>
+</html>
