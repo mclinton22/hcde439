@@ -12,19 +12,84 @@
     <h1>Madeline Clinton's Assignment 5!</h1>
     <div class="header">
       <p>
-        Here is all the documentation for assignment 5! For this assignment, CHANGE.
+        Here is all the documentation for assignment 5! For this assignment, I expanded on the libraries assignment. This time, you enter a pin to make the fan connected to the DC motor briefly speed up, and then slow down. I used a N-MOSFET transistor to control the voltage for the pin. The 3-6 volt DC motor gives 780mA at maximum efficiency, which is much more than the pin's 40mA. The transistor helps control the current without damaging the pin or Arduino. I also used a flyback diode to help with voltage spikes.
       </p>
     </div>
 
     <div class="assignment">
-      <img src="a4 images/a4 circuit.jpeg" alt="Photo of a breadboard with a 4x4 membrane keypad and a servo motor attatched to an arduino board."/>
-      <p>This photo shows the circuit. There is a 4x4 membrane keypad, a servo motor, a breadboard, and an arduino board.</p>
+      <img src="a5 images/A5 circuit.jpeg" alt="Photo of a breadboard with a 4x4 membrane keypad and a dc motor attatched to an arduino board."/>
+      <p>This photo shows the circuit. There is a 4x4 membrane keypad, a dc motor, a transistor, a flyback diode, a breadboard, and an arduino board.</p>
 
-      <img src="a4 images/a4 gif.gif" alt="A gif showing me entering a code and then the servo activating."/>
-      <p>This is the video of the servo moving when the correct code is entered.</p>
+      <img src="a5 images/A5 circuit gif.gif" alt="A gif showing me entering a code and then the motor activating."/>
+      <p>This is the video of the motor moving when the correct code is entered.</p>
 
       <h2> Arduino Code</h2>
       <pre>
+        #include <Keypad.h> // adds keypad library
+
+        const byte ROWS = 4; // sets row number
+        const byte COLS = 4; // sets columns number
+
+        int motorPin = 3; // sets PWM pin
+
+        // sets up the rows/cols as seen on the physical keypad
+        char keys[ROWS][COLS] = {
+          {'1','2','3','4'},
+          {'4','5','6','B'},
+          {'7','8','9','C'},
+          {'*','0','#','D'}
+        };
+
+        byte rowPins[ROWS] = {11, 10, 9, 8}; // set the pins to rows
+        byte colPins[COLS] = {7, 6, 5, 4}; // set the pins to cols
+
+        Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS); // use a keypad library function to set up keypad
+
+        String code = "2225"; // the correct code
+        String entered = ""; // the entered code
+
+
+        void setup() {
+          Serial.begin(9600); // starts serial
+          pinMode(motorPin, OUTPUT); // sets up motor - pin state begins as LOW/0 and is an input before pinMode setup
+        }
+
+        void loop() {
+          char key = keypad.getKey(); // get the entered key
+
+          if (key) {
+            Serial.println(key);
+
+            if (key == '#') { // user pressed enter
+              if (code == entered) { // check the code was correct
+                activateMotor(); // function to move motor
+              } else {
+                // really only for me to check
+                Serial.println("incorrect");
+              }
+              entered = ""; // resets code
+            } else if (key == '*') { // user wants to reset code
+                entered = "";
+            } else {
+              entered += key;
+            }
+          }
+        }
+
+        // makes the motor fan move to show code was correct
+        void activateMotor() {
+          Serial.println("activated");
+          // Speed up
+          for (int i = 0; i <= 255; i++) {
+            analogWrite(motorPin, i);
+            delay(10);
+          }
+          // Slow down
+          for (int i = 255; i >= 0; i--) {
+            analogWrite(motorPin, i);
+            delay(10);
+          }
+        }
 
       </pre>
 
@@ -35,7 +100,7 @@
             These are the datasheets for the n-mosfet transistor: [in canvas]. Read the text on your mosfet to see which one you have.For your mosfet, what is the absolute maximum amount of current between pins 2 and 3?
           </h3>
          <p>
-            answer
+            For the IRLZ44N N-MOSFET, the continuous drain current maximumbetween pins 2 and 3 is 47A.
           </p>
         </li>
 
@@ -43,33 +108,23 @@
           <h3>
             Draw a schematic for a circuit with using at least your arduino, a DC motor, and a flyback diode. Find parts with datasheets you could use for each of these schematic components.
           </h3>
-           <img src="a4 images/error code.jpg" alt="Pseudocode for erraneous reading handling."/>
-        </li>
-
-        <li>
-          <h3>
-            Your input device is slightly noisy, leading the measurement to randomly deviate from the true measurement up or down by 10%. How can we address this? Answer in (pseudo)code.
-          </h3>
-          <p>
-            I don't think this applies very well to my project, as noise is different for the membrane keypad than it would be for a photocell for example. If I was using a photocell, I would smooth out the readings using the pseudocode below, but again, I don't think this would work for the keypad because the readings are not numerical and they are not changing continuously like a photocell reading would be.
-          </p>
-          <img src="a4 images/noise code.jpg" alt="Pseudocode for handling noisy readings."/>
+           <img src="a5 images/Q2 schematic.jpg" alt="Schematic for a circuit with an arduino, DC motor, transistor,and flyback diode."/>
         </li>
 
         <li>
           <h3>
             Here is the datasheet for the L293D chip: https://www.ti.com/product/L293DLinks. Draw a schematic using at least your arduino, this chip, and two motors. Write (pseudo) code that shows how you would move the motors both forward, both back, then one forward one back, and one back then forward.
           </h3>
-          <p>
-            answer
-          </p>
-          <img src="a4 images/noise code.jpg" alt="Pseudocode for handling noisy readings."/>
+           <img class="size-down-landscape" src="a5 images/Q3 schematic.jpg" alt="Schematic for a circuit with an arduino, L293D chip, and two motors."/>
+           <img class="size-down-portrait" src="a5 images/Q3 pseudo code.jpg" alt="Pseudocode for moving motors with L293D chip."/>
+        </li>
+
         <li>
           <h3>
             Did you use AI tools in completing this assignment? If yes, please provide details on how/when, as well as a brief reflection. If no, you can either leave this question blank, or provide other information if you'd like.
           </h3>
           <p>
-            I used the Last Minute Engineers page (https://lastminuteengineers.com/arduino-keypad-tutorial/)to help me with the code for the keypad, but I did not use AI for this assignment.
+            I used the Arduino docs (https://docs.arduino.cc/learn/electronics/transistor-motor-control/) to help with the circuit, but that was it. I did not use any AI tools for this assignment.
           </p>
         </li>
       </ol>
