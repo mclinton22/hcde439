@@ -20,7 +20,7 @@ function setup() {
   textStyle(BOLD);
   textAlign(CENTER, CENTER);
 
-  // create LED toggle button, placed below connect button
+  // create LED toggle button below connect button
   ledBtn = createButton("Toggle LED");
   ledBtn.position(5, 35);
   ledBtn.mouseClicked(ledBtnClicked);
@@ -33,22 +33,23 @@ function draw() {
   if (!portIsOpen) return; // If the port is not open, exit the draw loop
 
   let str = port.readUntil("\n"); // Read from the port until the newline
-  if (str.length == 0) return; // If we didn't read anything, return.
+  if (str.length == 0) return; // If nothing is read, return
 
-  // Expect the Arduino to send two comma-separated values: e.g. "512,256"
-  const parts = str.trim().split(",");
+  // Arduino will send two comma-separated values: e.g. "512,256"
+  const parts = str.trim().split(","); // split the string into parts based on the comma
   if (parts.length < 2) return; // not enough data
 
   // parse the two coordinates and map them to the canvas
   const rawX = Number(parts[0]);
   const rawY = Number(parts[1]);
-  // if your joystick ranges 0-1023, map to the window size
+  // map to the window size
   const x = map(rawX, 0, 1023, 0, width);
   const y = map(rawY, 0, 1023, 0, height);
 
   // add current position to path
   path.push({x, y});
 
+  // draw a circle continuously at the current position
   background("white");
   fill("pink");
   noStroke();
@@ -57,15 +58,16 @@ function draw() {
   }
 }
 
+// checks if led is clicked, and allow toggle
 function ledBtnClicked() {
   if (!port.opened()) {
-    return; // must be connected
+    return; // port is not open, do nothing when the LED button is clicked
   }
 
-  if (ledOn) {
+  if (ledOn) { // if it's on - turn off
     port.write(led_OFF + "\n");
     ledBtn.html("Turn LED On");
-  } else {
+  } else { // if it's off - turn on
     port.write(led_ON + "\n");
     ledBtn.html("Turn LED Off");
   }
