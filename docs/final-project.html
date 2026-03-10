@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, maximum-scale=1.0" />
+
+    <title>Madeline Clinton's HCDE 439 Physical Computing Page!</title>
+
+    <link href="style.css" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+    <h1>Madeline Clinton's Assignment 6: Talking to the Web!</h1>
+    <div class="header">
+      <p>
+        Here is all the documentation for assignment 6! For this assignment I made it so that when I move a joystick, it draws circles on the canvas. I also added a led toggle button to turn the led on the arduino board on and off.
+      </p>
+    </div>
+
+    <div class="assignment">
+      <img src="a6 images/a6 circuit.jpeg" alt="Photo of a breadboard with a joystick, led, and resistorattatched to an arduino board."/>
+      <p>This photo shows the circuit. There is a joystick, an LED, and a resistor attached to an Arduino board.</p>
+
+      <img src="a6 images/a6 vid.gif" alt="A gif showing me moving the joystick and the circles being drawn on the canvas and toggling the led on and off based on a mouse click."/>
+      <p>This is the video of moving the joystick to draw circles on the webpage and toggling the led on and off based on a mouse click.</p>
+
+      <img src="a6 images/a6 schematic and calculations.jpeg" alt="A schematic of my circuit and calculations for the led resistor."/>
+      <p>This is my schematic for my circuit and the calculations for the red LED resistor.</p>
+
+
+      <h2> Arduino Code</h2>
+      <pre>
+        int x = A0;
+        int y = A1;
+        int xval = 0;
+        int yval = 0;
+        int LED = 12;
+
+        void setup() {
+          Serial.begin(9600); // setup serial
+          pinMode(LED, OUTPUT); // setup LED pin
+        }
+
+        void loop() {
+          // read the x and y values from the joystick
+          xval = analogRead(x);
+          yval = analogRead(y);
+
+          // send the x and y values to the serial port - separated by a comma
+          Serial.print(xval);
+          Serial.print(",");
+          Serial.println(yval);
+
+          // if we get data from the serial port, check if for 0 or 1 to turn LED on or off
+          if (Serial.available() > 0) {
+            char ledState = Serial.read();
+
+            // if serial sent 1, turn on LED
+            if (ledState == '1') {
+              digitalWrite(LED, HIGH);
+              // if serial sent 0, turn off LED
+            } else if (ledState == '0') {
+              digitalWrite(LED, LOW);
+            }
+          }
+
+          // add a delay to not overwhelm the port
+          delay(25);
+        }
+      </pre>
+
+      <h2>  P5 index.js Code</h2>
+      <pre>
+        const BAUD_RATE = 9600; // This should match the baud rate in your Arduino sketch
+
+        let port, connectBtn, ledBtn; // Declare global variables
+
+        const led_ON = "1"; // The value we will send to the Arduino to turn the LED on
+        const led_OFF = "0"; // The value we will send to the Arduino to turn the LED off
+
+        let ledOn = false; // track current LED state
+
+        function setup() {
+          setupSerial(); // Run our serial setup function (below)
+
+          // Create a canvas that is the size of our browser window.
+          // windowWidth and windowHeight are p5 variables
+          createCanvas(windowWidth, windowHeight);
+
+          // p5 text settings. BOLD and CENTER are constants provided by p5.
+          // See the "Typography" section in the p5 reference: https://p5js.org/reference/
+          textFont("system-ui", 50);
+          textStyle(BOLD);
+          textAlign(CENTER, CENTER);
+
+          // create LED toggle button below connect button
+          ledBtn = createButton("Toggle LED");
+          ledBtn.position(5, 35);
+          ledBtn.mouseClicked(ledBtnClicked);
+        }
+
+        let path = []; // store past coordinates
+
+        function draw() {
+          const portIsOpen = checkPort(); // Check whether the port is open (see checkPort function below)
+          if (!portIsOpen) return; // If the port is not open, exit the draw loop
+
+          let str = port.readUntil("\n"); // Read from the port until the newline
+          if (str.length == 0) return; // If nothing is read, return
+
+          // Arduino will send two comma-separated values: e.g. "512,256"
+          const parts = str.trim().split(","); // split the string into parts based on the comma
+          if (parts.length < 2) return; // not enough data
+
+          // parse the two coordinates and map them to the canvas
+          const rawX = Number(parts[0]);
+          const rawY = Number(parts[1]);
+          // map to the window size
+          const x = map(rawX, 0, 1023, 0, width);
+          const y = map(rawY, 0, 1023, 0, height);
+
+          // add current position to path
+          path.push({x, y});
+
+          // draw a circle continuously at the current position
+          background("white");
+          fill("pink");
+          noStroke();
+          for (let p of path) {
+            circle(p.x, p.y, 100);
+          }
+        }
+
+        // checks if led is clicked, and allow toggle
+        function ledBtnClicked() {
+          if (!port.opened()) {
+            return; // port is not open, do nothing when the LED button is clicked
+          }
+
+          if (ledOn) { // if it's on - turn off
+            port.write(led_OFF + "\n");
+            ledBtn.html("Turn LED On");
+          } else { // if it's off - turn on
+            port.write(led_ON + "\n");
+            ledBtn.html("Turn LED Off");
+          }
+
+          ledOn = !ledOn;
+        }
+
+        // Three helper functions for managing the serial connection.
+
+        function setupSerial() {
+          port = createSerial();
+
+          // Check to see if there are any ports we have used previously
+          let usedPorts = usedSerialPorts();
+          if (usedPorts.length > 0) {
+            // If there are ports we've used, open the first one
+            port.open(usedPorts[0], BAUD_RATE);
+          } else {
+            // no previously used port – you can explicitly specify COM5 here if needed
+            //port.open("COM5", BAUD_RATE);
+          }
+
+          // create a connect button
+          connectBtn = createButton("Connect to Arduino");
+          connectBtn.position(5, 5); // Position the button in the top left of the screen.
+          connectBtn.mouseClicked(onConnectButtonClicked); // When the button is clicked, run the onConnectButtonClicked function
+        }
+
+        function checkPort() {
+          if (!port.opened()) {
+            // If the port is not open, change button text
+            connectBtn.html("Connect to Arduino");
+            // Set background to gray
+            background("gray");
+            return false;
+          } else {
+            // Otherwise we are connected
+            connectBtn.html("Disconnect");
+            return true;
+          }
+        }
+
+        function onConnectButtonClicked() {
+          // When the connect button is clicked
+          if (!port.opened()) {
+            // If the port is not opened, we open it
+            port.open(BAUD_RATE);
+          } else {
+            // Otherwise, we close it!
+            port.close();
+          }
+        }
+      </pre>
+
+    </div>
+  </body>
