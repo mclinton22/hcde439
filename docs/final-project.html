@@ -9,190 +9,103 @@
     <link href="style.css" rel="stylesheet" type="text/css" />
   </head>
   <body>
-    <h1>Madeline Clinton's Assignment 6: Talking to the Web!</h1>
+    <h1>Madeline Clinton's Final Project: LightLeaf!</h1>
     <div class="header">
       <p>
-        Here is all the documentation for assignment 6! For this assignment I made it so that when I move a joystick, it draws circles on the canvas. I also added a led toggle button to turn the led on the arduino board on and off.
+        For my final project in HCDE 439, I decided to build off of previous assignments and create a project that shows users if plants are getting enough light by showing green for good lighting and red for bad lighting. I wanted to do this because I have a lot of plants and I wanted to make a prototype of an easy way to check if they are getting enough light without having to check the lighting in the room. For this project, I used and RGB LED, a photocell, and an Arduino. I also 3D printed a case for the Arduino and a case for the circuit.
       </p>
     </div>
 
     <div class="assignment">
-      <img src="a6 images/a6 circuit.jpeg" alt="Photo of a breadboard with a joystick, led, and resistorattatched to an arduino board."/>
-      <p>This photo shows the circuit. There is a joystick, an LED, and a resistor attached to an Arduino board.</p>
+      <!-- BILL OF MATERIALS -->
+      <h2>Bill of Materials</h2>
+      <ul>
+        <li>1 x Arduino Uno</li>
+        <li>1 x Mini Breadboard</li>
+        <li>1 x RGB LED</li>
+        <li>1 x Photocell</li>
+        <li>1 x 10k ohm resistor</li>
+        <li>3 x 220 ohm resistor</li>
+        <li>Jumper wires</li>
+        <li>1 x 3D Printed Arduino Case</li>
+        <li>1 x 3D Printed Circuit Enclosure</li>
+      </ul>
 
+      <!-- PROJECT PHOTO -->
+      <img src="project images/circuit with box.jpeg" alt="Photo of a navy 3D printed case with an Arduino in a 3D printed case and a white RGB LED sticking out the side."/>
+      <p>Here is my project in the 3D printed case I made for it. There is a case for the Arduino and a box for the circuit with two holes for the LED and the photocell.</p>
+
+      <!-- CIRCUIT PHOTO -->
+      <img src="project images/circuit top view.jpeg" alt="Photo from the top of a mini breadboard on an Arduino with a white RGB LED, a photocell, a 10k Ohm resistor, and three 220 Ohm resistors."/>
+      <p>This is a top-down view of my project's circuit board with the RGB LED and photocell connected. I used the mini breadboard and stuck it to the top of the Arduino case.</p>
+
+      <img src="project images/circuit side view.jpeg" alt="Photo from the side of a mini breadboard on an Arduino with a white RGB LED, a photocell, a 10k Ohm resistor, and three 220 Ohm resistors"/>
+      <p>This is a side view of my project's circuit board with the RGB LED and photocell connected.</p>
+
+      <!-- VIDEO -->
       <img src="a6 images/a6 vid.gif" alt="A gif showing me moving the joystick and the circles being drawn on the canvas and toggling the led on and off based on a mouse click."/>
-      <p>This is the video of moving the joystick to draw circles on the webpage and toggling the led on and off based on a mouse click.</p>
+      <p>CAPTION</p>
 
+      <!-- SCHEMATIC -->
       <img src="a6 images/a6 schematic and calculations.jpeg" alt="A schematic of my circuit and calculations for the led resistor."/>
-      <p>This is my schematic for my circuit and the calculations for the red LED resistor.</p>
+      <p>CAPTION</p>
 
 
       <h2> Arduino Code</h2>
       <pre>
-        int x = A0;
-        int y = A1;
-        int xval = 0;
-        int yval = 0;
-        int LED = 12;
+        // Constants that won't change
+        const int analogInPin = A0;  // Analog input pin that the potentiometer is attached to
+        const int redLED = 9;  // Analog output pin that the red LED is attached to
+        const int greenLED = 10; // Analog output pin that the green LED is attached to
+
+        int sensorValue = 0;  // value read from light
+        int redOutputValue = 0; // value output to the PWM (analog out) - red LED
+        int greenOutputValue = 0;  // value output to the PWM (analog out) - green LED
 
         void setup() {
-          Serial.begin(9600); // setup serial
-          pinMode(LED, OUTPUT); // setup LED pin
+        // initialize serial communications at 9600 bps:
+        Serial.begin(9600);
         }
 
         void loop() {
-          // read the x and y values from the joystick
-          xval = analogRead(x);
-          yval = analogRead(y);
+        // read the analog in value:
+        sensorValue = analogRead(analogInPin);
 
-          // send the x and y values to the serial port - separated by a comma
-          Serial.print(xval);
-          Serial.print(",");
-          Serial.println(yval);
+        // contrain the sensor values based on light: red for low light and green for higher light
+        int sensorValueRed = constrain(sensorValue, 350, 770);
+        int sensorValueGreen = constrain(sensorValue, 700, 920);
 
-          // if we get data from the serial port, check if for 0 or 1 to turn LED on or off
-          if (Serial.available() > 0) {
-            char ledState = Serial.read();
 
-            // if serial sent 1, turn on LED
-            if (ledState == '1') {
-              digitalWrite(LED, HIGH);
-              // if serial sent 0, turn off LED
-            } else if (ledState == '0') {
-              digitalWrite(LED, LOW);
-            }
-          }
+        // map it to the range of the analog out: 
+        redOutputValue = map(sensorValueRed, 770, 350, 0, 255); // red LED will be higher when light is lower
+        greenOutputValue = map(sensorValueGreen, 700, 920, 0, 255); // green LED will be higher when light is higher
 
-          // add a delay to not overwhelm the port
-          delay(25);
+        // change the analog out value:
+        if (sensorValue < 700) { // if the light is low enough, map red LED
+          analogWrite(redLED, redOutputValue);
+        } else { // if the light is too high, don't turn on red LED
+          analogWrite(redLED, 0);
+        }
+
+        // if the light is not lower than 700, turn on green LED
+        analogWrite(greenLED, greenOutputValue);
+
+        // print the results to the Serial Monitor:
+        Serial.print("light sensor = ");
+        Serial.print(sensorValue);
+        Serial.print("\t RED output = ");
+        Serial.println(redOutputValue);
+        Serial.print("/t GREEN output = ");
+        Serial.println(greenOutputValue);
+
+        // wait 2 milliseconds before the next loop
+        delay(2);
         }
       </pre>
 
-      <h2>  P5 index.js Code</h2>
-      <pre>
-        const BAUD_RATE = 9600; // This should match the baud rate in your Arduino sketch
-
-        let port, connectBtn, ledBtn; // Declare global variables
-
-        const led_ON = "1"; // The value we will send to the Arduino to turn the LED on
-        const led_OFF = "0"; // The value we will send to the Arduino to turn the LED off
-
-        let ledOn = false; // track current LED state
-
-        function setup() {
-          setupSerial(); // Run our serial setup function (below)
-
-          // Create a canvas that is the size of our browser window.
-          // windowWidth and windowHeight are p5 variables
-          createCanvas(windowWidth, windowHeight);
-
-          // p5 text settings. BOLD and CENTER are constants provided by p5.
-          // See the "Typography" section in the p5 reference: https://p5js.org/reference/
-          textFont("system-ui", 50);
-          textStyle(BOLD);
-          textAlign(CENTER, CENTER);
-
-          // create LED toggle button below connect button
-          ledBtn = createButton("Toggle LED");
-          ledBtn.position(5, 35);
-          ledBtn.mouseClicked(ledBtnClicked);
-        }
-
-        let path = []; // store past coordinates
-
-        function draw() {
-          const portIsOpen = checkPort(); // Check whether the port is open (see checkPort function below)
-          if (!portIsOpen) return; // If the port is not open, exit the draw loop
-
-          let str = port.readUntil("\n"); // Read from the port until the newline
-          if (str.length == 0) return; // If nothing is read, return
-
-          // Arduino will send two comma-separated values: e.g. "512,256"
-          const parts = str.trim().split(","); // split the string into parts based on the comma
-          if (parts.length < 2) return; // not enough data
-
-          // parse the two coordinates and map them to the canvas
-          const rawX = Number(parts[0]);
-          const rawY = Number(parts[1]);
-          // map to the window size
-          const x = map(rawX, 0, 1023, 0, width);
-          const y = map(rawY, 0, 1023, 0, height);
-
-          // add current position to path
-          path.push({x, y});
-
-          // draw a circle continuously at the current position
-          background("white");
-          fill("pink");
-          noStroke();
-          for (let p of path) {
-            circle(p.x, p.y, 100);
-          }
-        }
-
-        // checks if led is clicked, and allow toggle
-        function ledBtnClicked() {
-          if (!port.opened()) {
-            return; // port is not open, do nothing when the LED button is clicked
-          }
-
-          if (ledOn) { // if it's on - turn off
-            port.write(led_OFF + "\n");
-            ledBtn.html("Turn LED On");
-          } else { // if it's off - turn on
-            port.write(led_ON + "\n");
-            ledBtn.html("Turn LED Off");
-          }
-
-          ledOn = !ledOn;
-        }
-
-        // Three helper functions for managing the serial connection.
-
-        function setupSerial() {
-          port = createSerial();
-
-          // Check to see if there are any ports we have used previously
-          let usedPorts = usedSerialPorts();
-          if (usedPorts.length > 0) {
-            // If there are ports we've used, open the first one
-            port.open(usedPorts[0], BAUD_RATE);
-          } else {
-            // no previously used port – you can explicitly specify COM5 here if needed
-            //port.open("COM5", BAUD_RATE);
-          }
-
-          // create a connect button
-          connectBtn = createButton("Connect to Arduino");
-          connectBtn.position(5, 5); // Position the button in the top left of the screen.
-          connectBtn.mouseClicked(onConnectButtonClicked); // When the button is clicked, run the onConnectButtonClicked function
-        }
-
-        function checkPort() {
-          if (!port.opened()) {
-            // If the port is not open, change button text
-            connectBtn.html("Connect to Arduino");
-            // Set background to gray
-            background("gray");
-            return false;
-          } else {
-            // Otherwise we are connected
-            connectBtn.html("Disconnect");
-            return true;
-          }
-        }
-
-        function onConnectButtonClicked() {
-          // When the connect button is clicked
-          if (!port.opened()) {
-            // If the port is not opened, we open it
-            port.open(BAUD_RATE);
-          } else {
-            // Otherwise, we close it!
-            port.close();
-          }
-        }
-      </pre>
-
+      <h2>Technical Write-Up</h2>
+      <p>
+        For this project, I started with an idea of what I wanted to create. I then assessed what would be a realistic and achievable project I could make that would be a prototype of my idea. Using the matierals listsed above, I first practiced this project in assignment 3. I then built off of them to use a RGB LED and a mini breadboard to make the circuit more compact. I first built my circuit on a full sized breadboard the way that I was used to. I then assesed what I would have room for and what I would need to adjust so that it fit on the mini breadboard. I also had to strateigically place the LED and photocell so that they could be enclosed and not have the light from the LED interfere with the photocell. I then had to calculate the resistor values for the RGB LED and make a schematic to make sure I was connecting everything correctly. The most tedious part of this project was mapping the sensor values to the output values for the LEDs. The photocell is very sensitive, so I had to do a lot of testing and adjusting to get the right ranges for the sensor values and the output values. I also had to adjust the code so that the red LED would only turn on when the light was low enough and the green LED would only turn on when the light was high enough. The weather in Seattle has been sunny for 30 minutes or very gloomy lately so the light levels have been different each time I tested my project. Overall, I am really happy with how this project turned out and I think it is a good prototype for the idea I had. If I were to continue working on this project, I would like to expand the RGB LED to a whole strip of RGB LEDS that could wrap around the plant's pot. This way, it will be more visible and visually appealing because I could hide the circuit somewhere else. I would also want to have specific lighting settings based on the plant. So the photocell will be more sensistive for full light plants and less sensistive for low light plants.
+      </p>
     </div>
   </body>
