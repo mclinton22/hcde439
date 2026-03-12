@@ -43,12 +43,12 @@
       <p>This is a side view of my project's circuit board with the RGB LED and photocell connected.</p>
 
       <!-- VIDEO -->
-      <img src="a6 images/a6 vid.gif" alt="A gif showing me moving the joystick and the circles being drawn on the canvas and toggling the led on and off based on a mouse click."/>
-      <p>CAPTION</p>
+      <img src="project images/final project gif.gif" alt="A gif demonstrating the functionality of my LightLeaf project with low lighting and higher lighting."/>
+      <p>Here is my video demonstrating the project. I show how the LED changes color based on the lighting conditions."</p>
 
       <!-- SCHEMATIC -->
-      <img src="a6 images/a6 schematic and calculations.jpeg" alt="A schematic of my circuit and calculations for the led resistor."/>
-      <p>CAPTION</p>
+      <img src="project images/schematic and calculations.png" alt="A schematic of my circuit and calculations for the led and photocell resistors."/>
+      <p>Here is the schematic of my circuit and the calculations I used to determine the resistor values for the LEDs and the photocell.</p>
 
 
       <h2> Arduino Code</h2>
@@ -72,16 +72,16 @@
         sensorValue = analogRead(analogInPin);
 
         // contrain the sensor values based on light: red for low light and green for higher light
-        int sensorValueRed = constrain(sensorValue, 350, 770);
-        int sensorValueGreen = constrain(sensorValue, 700, 920);
+        int sensorValueRed = constrain(sensorValue, 200, 300);
+        int sensorValueGreen = constrain(sensorValue, 200, 400);
 
 
         // map it to the range of the analog out: 
-        redOutputValue = map(sensorValueRed, 770, 350, 0, 255); // red LED will be higher when light is lower
-        greenOutputValue = map(sensorValueGreen, 700, 920, 0, 255); // green LED will be higher when light is higher
+        redOutputValue = map(sensorValueRed, 300, 200, 0, 255); // red LED will be higher when light is lower
+        greenOutputValue = map(sensorValueGreen, 200, 400, 0, 255); // green LED will be higher when light is higher
 
         // change the analog out value:
-        if (sensorValue < 700) { // if the light is low enough, map red LED
+        if (sensorValue < 300) { // if the light is low enough, map red LED
           analogWrite(redLED, redOutputValue);
         } else { // if the light is too high, don't turn on red LED
           analogWrite(redLED, 0);
@@ -101,6 +101,7 @@
         // wait 2 milliseconds before the next loop
         delay(2);
         }
+
       </pre>
 
       <h2>Technical Write-Up</h2>
